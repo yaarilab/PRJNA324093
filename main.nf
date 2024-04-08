@@ -35,19 +35,58 @@ if (params.reads){
 Channel
 	.fromFilePairs( params.reads , size: params.mate == "single" ? 1 : params.mate == "pair" ? 2 : params.mate == "triple" ? 3 : params.mate == "quadruple" ? 4 : -1 )
 	.ifEmpty { error "Cannot find any reads matching: ${params.reads}" }
-	.set{g_0_reads_g5_12}
+	.set{g_0_reads_g_15}
  } else {  
-	g_0_reads_g5_12 = Channel.empty()
+	g_0_reads_g_15 = Channel.empty()
  }
 
-Channel.value(params.mate).into{g_1_mate_g5_12;g_1_mate_g5_15;g_1_mate_g5_19}
+Channel.value(params.mate).into{g_1_mate_g_15;g_1_mate_g5_12;g_1_mate_g5_15;g_1_mate_g5_19}
+
+
+process unizp {
+
+input:
+ set val(name),file(reads) from g_0_reads_g_15
+ val mate from g_1_mate_g_15
+
+output:
+ set val(name),file("*.fastq")  into g_15_reads0_g5_12
+
+script:
+
+readArray = reads.toString().split(' ')	
+R1 = readArray[0]
+R2 = readArray[1]
+
+"""
+case "$R1" in
+*.gz | *.tgz ) 
+        gunzip -c $R1 > R1.fastq
+        ;;
+*)
+        cp $R1 ./R1.fastq
+        echo "$R1 not gzipped"
+        ;;
+esac
+
+case "$R2" in
+*.gz | *.tgz ) 
+        gunzip -c $R2 > R2.fastq
+        ;;
+*)
+        cp $R2 ./R2.fastq
+        echo "$R2 not gzipped"
+        ;;
+esac
+"""
+}
 
 
 process Assemble_pairs_assemble_pairs {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /AP_.*$/) "logs/$filename"}
 input:
- set val(name),file(reads) from g_0_reads_g5_12
+ set val(name),file(reads) from g_15_reads0_g5_12
  val mate from g_1_mate_g5_12
 
 output:
