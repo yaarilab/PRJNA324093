@@ -14,7 +14,7 @@ params.Assemble_pairs_assemble_pairs.rc = "tail"
 params.Assemble_pairs_assemble_pairs.head_fields_R1 = ""
 params.Assemble_pairs_assemble_pairs.head_fields_R2 = ""
 params.Assemble_pairs_assemble_pairs.failed = "false"
-params.Assemble_pairs_assemble_pairs.fasta = "true"
+params.Assemble_pairs_assemble_pairs.fasta = "false"
 params.Assemble_pairs_assemble_pairs.nproc = params.nproc
 params.Assemble_pairs_assemble_pairs.alpha = 0.00001
 params.Assemble_pairs_assemble_pairs.maxerror = 0.3
@@ -38,6 +38,8 @@ params.Mask_Primer_MaskPrimers.failed = ["true"]
 params.Mask_Primer_MaskPrimers.nproc = params.nproc
 params.Mask_Primer_MaskPrimers.skiprc = "true"
 params.Mask_Primer_MaskPrimers.R1_primers = "${projectDir}/primers/V_primers.fasta"
+params.Mask_Primer_MaskPrimers.fasta = "true"
+
 
 if (!params.reads){params.reads = ""} 
 if (!params.mate){params.mate = ""} 
@@ -420,6 +422,7 @@ barcode = params.Mask_Primer_MaskPrimers.barcode
 revpr = params.Mask_Primer_MaskPrimers.revpr
 mode = params.Mask_Primer_MaskPrimers.mode
 failed = params.Mask_Primer_MaskPrimers.failed
+fasta = params.Mask_Primer_MaskPrimers.fasta
 nproc = params.Mask_Primer_MaskPrimers.nproc
 maxerror = params.Mask_Primer_MaskPrimers.maxerror
 umi_length = params.Mask_Primer_MaskPrimers.umi_length
@@ -444,7 +447,7 @@ extract_length = (extract_length.collect().size==2) ? extract_length : [extract_
 maxlen = (maxlen.collect().size==2) ? maxlen : [maxlen[0],maxlen[0]]
 skiprc = (skiprc.collect().size==2) ? skiprc : [skiprc[0],skiprc[0]]
 failed = (failed=="true") ? "--failed" : ""
-
+fasta = (fasta=="true") ? "--fasta" : ""
 def args_values = [];
 [method,barcode_field,primer_field,barcode,revpr,mode,maxerror,umi_length,start,extract_length,maxlen,skiprc].transpose().each { m,bf,pf,bc,rp,md,mr,ul,s,el,ml,sk -> {
     
@@ -493,8 +496,8 @@ if(mate=="pair"){
 	
 	"""
 	
-	MaskPrimers.py ${args_1} -s ${R1} ${R1_primers} --log MP_R1_${name}.log  --nproc ${nproc} ${failed} 2>&1 | tee -a out_${R1}_MP.log & \
-	MaskPrimers.py ${args_2} -s ${R2} ${R2_primers} --log MP_R2_${name}.log  --nproc ${nproc} ${failed} 2>&1 | tee -a out_${R1}_MP.log & \
+	MaskPrimers.py ${args_1} -s ${R1} ${R1_primers} --log MP_R1_${name}.log  --nproc ${nproc} ${failed} ${fasta} 2>&1 | tee -a out_${R1}_MP.log & \
+	MaskPrimers.py ${args_2} -s ${R2} ${R2_primers} --log MP_R2_${name}.log  --nproc ${nproc} ${failed} ${fasta} 2>&1 | tee -a out_${R1}_MP.log & \
 	wait
 	"""
 }else{
@@ -507,7 +510,7 @@ if(mate=="pair"){
 	"""
 	echo -e "Assuming inputs for R1\n"
 	
-	MaskPrimers.py ${args_1} -s ${reads} ${R1_primers} --log MP_${name}.log  --nproc ${nproc} ${failed} 2>&1 | tee -a out_${R1}_MP.log
+	MaskPrimers.py ${args_1} -s ${reads} ${R1_primers} --log MP_${name}.log  --nproc ${nproc} ${failed} ${fasta} 2>&1 | tee -a out_${R1}_MP.log
 	"""
 }
 
