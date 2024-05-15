@@ -54,8 +54,8 @@ Channel
 	g_0_reads_g_15 = Channel.empty()
  }
 
-Channel.value(params.mate).into{g_1_mate_g_15;g_1_mate_g5_12;g_1_mate_g5_15;g_1_mate_g5_19;g_1_mate_g17_11;g_1_mate_g17_9;g_1_mate_g17_12}
-Channel.value(params.mate2).into{g_18_mate_g17_11;g_18_mate_g17_9;g_18_mate_g17_12}
+Channel.value(params.mate).into{g_1_mate_g_15;g_1_mate_g5_12;g_1_mate_g5_15;g_1_mate_g5_19;g_1_mate_g20_11;g_1_mate_g20_9;g_1_mate_g20_12}
+Channel.value(params.mate2).into{g_18_mate_g20_11;g_18_mate_g20_9;g_18_mate_g20_12}
 
 
 process unizp {
@@ -119,7 +119,7 @@ input:
  val mate from g_1_mate_g5_12
 
 output:
- set val(name),file("*_assemble-pass.f*")  into g5_12_reads0_g17_11
+ set val(name),file("*_assemble-pass.f*")  into g5_12_reads0_g20_11
  set val(name),file("AP_*")  into g5_12_logFile1_g5_15
  set val(name),file("*_assemble-fail.f*") optional true  into g5_12_reads_failed22
  set val(name),file("out*")  into g5_12_logFile33
@@ -405,14 +405,14 @@ process Mask_Primer_MaskPrimers {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /out.*$/) "logs/$filename"}
 input:
- val mate from g_18_mate_g17_11
- set val(name),file(reads) from g5_12_reads0_g17_11
+ val mate from g_18_mate_g20_11
+ set val(name),file(reads) from g5_12_reads0_g20_11
 
 output:
- set val(name), file("*_primers-pass.fastq")  into g17_11_reads0_g_10
- set val(name), file("*_primers-fail.fastq") optional true  into g17_11_reads_failed11
- set val(name), file("MP_*")  into g17_11_logFile2_g17_9
- set val(name),file("out*")  into g17_11_logFile33
+ set val(name), file("*_primers-pass.fast*")  into g20_11_reads0_g_10
+ set val(name), file("*_primers-fail.fast*") optional true  into g20_11_reads_failed11
+ set val(name), file("MP_*")  into g20_11_logFile2_g20_9
+ set val(name),file("out*")  into g20_11_logFile33
 
 script:
 method = params.Mask_Primer_MaskPrimers.method
@@ -521,7 +521,7 @@ process vdjbase_input {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /${chain}$/) "reads/$filename"}
 input:
- set val(name),file(reads) from g17_11_reads0_g_10
+ set val(name),file(reads) from g20_11_reads0_g_10
 
 output:
  file "${chain}"  into g_10_germlineDb00
@@ -540,11 +540,11 @@ mv ${reads} ${chain}/${name}.fasta
 process Mask_Primer_parse_log_MP {
 
 input:
- val mate from g_18_mate_g17_9
- set val(name), file(log_file) from g17_11_logFile2_g17_9
+ val mate from g_18_mate_g20_9
+ set val(name), file(log_file) from g20_11_logFile2_g20_9
 
 output:
- file "*table.tab"  into g17_9_logFile0_g17_12, g17_9_logFile0_g17_19
+ file "*table.tab"  into g20_9_logFile0_g20_12, g20_9_logFile0_g20_19
 
 script:
 readArray = log_file.toString()	
@@ -559,11 +559,11 @@ ParseLog.py -l ${readArray}  -f ID PRIMER BARCODE ERROR
 process Mask_Primer_try_report_maskprimer {
 
 input:
- file primers from g17_9_logFile0_g17_12
- val mate from g_18_mate_g17_12
+ file primers from g20_9_logFile0_g20_12
+ val mate from g_18_mate_g20_12
 
 output:
- file "*.rmd"  into g17_12_rMarkdown0_g17_19
+ file "*.rmd"  into g20_12_rMarkdown0_g20_19
 
 
 shell:
@@ -755,12 +755,12 @@ if(mate=="pair"){
 process Mask_Primer_presto_render_rmarkdown {
 
 input:
- file rmk from g17_12_rMarkdown0_g17_19
- file log_file from g17_9_logFile0_g17_19
+ file rmk from g20_12_rMarkdown0_g20_19
+ file log_file from g20_9_logFile0_g20_19
 
 output:
- file "*.html"  into g17_19_outputFileHTML00
- file "*csv" optional true  into g17_19_csvFile11
+ file "*.html"  into g20_19_outputFileHTML00
+ file "*csv" optional true  into g20_19_csvFile11
 
 """
 
